@@ -9,7 +9,7 @@ let emotion;
 
 
 app.use(express.static('public'));
-
+//Importante para mandar foto tamaño completo
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb'}));
 let dotenv =  require('dotenv');
@@ -21,6 +21,7 @@ mongoose.connect(process.env.DB_CONNECT,
     ()=>console.log('Connected to db')
     );
 
+    //Método API de detección facial
 function make_request(method, url, data, files = {}, callback){
     var data = JSON.parse(JSON.stringify(data))
     for (var i of Object.keys(files))
@@ -46,7 +47,7 @@ app.post('/api',async (req,res)=>{
 
     make_request("POST", "https://api.luxand.cloud/photo/detect", {"photo": req.body.snap}, {}, function(response){
        
-   
+   //Si no se detecta cara, enviar mensaje a usuario de tomar foto de nuevo
        analysis = response;
       // console.log(analysis);
 
@@ -56,14 +57,14 @@ app.post('/api',async (req,res)=>{
     });
    
     make_request("POST", "https://api.luxand.cloud/photo/emotions", {"photo": req.body.snap}, {},  function(response){
-      
+      //Solo escoger emoción con mayor prbabilidad
         emotion = response;
         console.log(emotion.faces[0].emotions);
        
            
 
 });
-
+//falta añadir emoción y el porcentaje de la emoción
 const img = new Image({
     lat: req.body.lat,
     lon: req.body.lon,
@@ -73,7 +74,7 @@ const img = new Image({
     genProb: analysis[0].gender.probability,
    
 });  
-
+//Aquí se manda a DB
 try{
     await img.save();
     res.json({task:"success"})
@@ -83,6 +84,17 @@ try{
      res.status(400).send(err);
 }
 
+});
+app.get('/api',async(req,res)=>{
+    try{
+        await Image.find().exec(function(err, doc) {
+        
+            res.json(doc)});
+        
+    }
+    catch(err){
+        res.status(400).send(err);
+    }
 });
 
 

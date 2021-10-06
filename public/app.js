@@ -13,7 +13,7 @@ boton.addEventListener('click', async event=>{
     let snap = capture.canvas.toDataURL('image/png', 1.0);
     //createImg(snap);
 
-   
+   //El video se congela, creo que es por el loadpixels() debe existr modo de no hacer esto
     let data = {lat,lon,snap};
     let message = JSON.stringify(data); 
     ///console.log(message);
@@ -57,6 +57,8 @@ function setup(){
 
         });
     }else{
+
+        //que pasa si no se detecta ubicacion
         lat = 0;
         lon = 0;
     }
@@ -69,7 +71,7 @@ image(capture,0,0,width,height);
 }
 
 //getData();
-
+//Esto es para la visualizacion en otro lado
 async function getData() {
 const response = await fetch('/api');
 const data = await response.json();
